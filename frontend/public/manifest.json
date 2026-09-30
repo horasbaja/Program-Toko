@@ -1,0 +1,15 @@
+{
+  "short_name": "HORAS BAJA",
+  "name": "HORAS BAJA - POS & Management",
+  "description": "Sistem POS & Manajemen Toko Seng, Roofing & Material Konstruksi",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0B0F17",
+  "background_color": "#0B0F17"
+}

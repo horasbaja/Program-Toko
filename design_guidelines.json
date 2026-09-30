@@ -1,0 +1,136 @@
+{
+  "project_name": "HORAS BAJA - Management & POS System",
+  "location": "Pematang Siantar, North Sumatra",
+  "app_type": "industrial_pos_erp",
+  "theme_strategy": {
+    "default_mode": "dark_industrial",
+    "theme_toggle_supported": true,
+    "aesthetic": "Industrial Tactical & Blueprint Precision (Steel, Zinc, Industrial Safety Amber, Slate Graphite)",
+    "target_devices": {
+      "desktop": "Admin & Owner Multi-column analytics, inventory matrix, financial reports",
+      "tablet": "Kasir POS touch-optimized, rapid item selection, custom indent length builder",
+      "mobile": "Owner Executive summary cards, daily profit/loss, key alerts"
+    }
+  },
+  "typography": {
+    "heading_font": "Cabinet Grotesk, Barlow Condensed, sans-serif",
+    "body_font": "Inter, IBM Plex Sans, sans-serif",
+    "mono_font": "JetBrains Mono, Roboto Mono, monospace",
+    "hierarchy": {
+      "h1_hero": "text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight",
+      "h2_section": "text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight",
+      "h3_card": "text-lg sm:text-xl font-semibold",
+      "body_text": "text-sm sm:text-base leading-relaxed",
+      "caption_mono": "font-mono text-xs sm:text-sm tracking-wide uppercase"
+    }
+  },
+  "colors": {
+    "dark_mode": {
+      "bg_primary": "#0B0F17",
+      "bg_secondary": "#111827",
+      "surface_card": "#1E293B",
+      "surface_border": "#334155",
+      "text_primary": "#F8FAFC",
+      "text_secondary": "#94A3B8",
+      "brand_primary": "#EA580C",
+      "brand_primary_hover": "#C2410C",
+      "brand_accent": "#0284C7",
+      "zinc_metallic": "#64748B",
+      "status_badges": {
+        "proses_indent_kuning": "#EAB308",
+        "ready_belum_dikirim_biru": "#3B82F6",
+        "antar_sebagian_jingga": "#F97316",
+        "close_hijau": "#22C55E"
+      }
+    },
+    "light_mode": {
+      "bg_primary": "#F8FAFC",
+      "bg_secondary": "#F1F5F9",
+      "surface_card": "#FFFFFF",
+      "surface_border": "#E2E8F0",
+      "text_primary": "#0F172A",
+      "text_secondary": "#475569",
+      "brand_primary": "#C2410C",
+      "brand_primary_hover": "#9A3412",
+      "brand_accent": "#0369A1",
+      "zinc_metallic": "#475569",
+      "status_badges": {
+        "proses_indent_kuning": "#CA8A04",
+        "ready_belum_dikirim_biru": "#2563EB",
+        "antar_sebagian_jingga": "#EA580C",
+        "close_hijau": "#16A34A"
+      }
+    }
+  },
+  "layout_and_shell": {
+    "sidebar": {
+      "width_expanded": "w-64",
+      "width_collapsed": "w-20",
+      "style": "bg-slate-900 border-r border-slate-800 text-slate-100 dark:bg-slate-950",
+      "header_logo": "Bold industrial badge 'HORAS BAJA' with steel plate icon & Pematang Siantar tagline"
+    },
+    "pos_tablet_layout": {
+      "structure": "2-Column Split Layout on Tablet/Desktop (65% Product Grid & Calculator / 35% Active Cart & Customer Details)",
+      "quick_touch_targets": "Minimum 48px touch targets for touch-screen cashier compatibility",
+      "indent_builder_modal": "Dedicated visual calculator for custom sheet length (meter), roof curves (lengkung lurus), upah breakdown, and weight estimation"
+    },
+    "multi_warehouse": {
+      "warehouses": ["Gudang Mojopahit", "Gudang Wahidin"],
+      "ui_treatment": "Pill switchers with distinct color indicator for stock origin and transfer status"
+    }
+  },
+  "component_styling": {
+    "tables": "Dense industrial data grid with sticky headers, subtle row hover (#1E293B/50), explicit borders, and clear numeric right-alignment in JetBrains Mono",
+    "cards": "Subtle 1px border (#334155), compact inner padding (p-4 to p-6), crisp dark background without muddy gradients",
+    "buttons": {
+      "primary": "bg-orange-600 hover:bg-orange-700 text-white font-semibold shadow-md active:scale-[0.98] transition-all",
+      "secondary": "bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium",
+      "danger": "bg-red-600 hover:bg-red-700 text-white font-medium"
+    },
+    "status_badges": {
+      "yellow_indent": "bg-yellow-500/15 text-yellow-500 border border-yellow-500/30 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold",
+      "blue_ready": "bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold",
+      "orange_partial": "bg-orange-500/15 text-orange-400 border border-orange-500/30 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold",
+      "green_close": "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+    }
+  },
+  "print_styles": {
+    "thermal_80mm": {
+      "width": "80mm",
+      "font_family": "JetBrains Mono, monospace",
+      "font_size": "12px",
+      "elements": "Header HORAS BAJA Pematang Siantar, Alamat & Telp, No Nota, Kasir, Pelanggan, Tabel Item (Nama, PxL, Qty, Harga, Subtotal), Ongkir, DP/Pelunasan, QR Code WA / Bank"
+    },
+    "surat_jalan_a5_a4": {
+      "paper_format": "A5 Landscape / A4 Portrait",
+      "header": "Surat Jalan Multi-Rit / Parsial - HORAS BAJA",
+      "content": "No Surat Jalan, Ref Sales Order, Gudang Asal (Mojopahit/Wahidin), Driver & No Polisi, Daftar Material Yang Dikirim (Unit/Batang/Lembar), Kolom Tanda Tangan (Penerima, Driver, Gudang)"
+    }
+  },
+  "image_urls": [
+    {
+      "category": "hero_warehouse",
+      "url": "https://images.unsplash.com/uploads/14123892966835548e7bd/14369636?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwyfHxzdGVlbCUyMHJvb2YlMjBjb25zdHJ1Y3Rpb24lMjB3YXJlaG91c2UlMjBtYXRlcmlhbHxlbnwwfHx8fDE3OTA3NTA3OTl8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Steel beams roof structure for building construction header background"
+    },
+    {
+      "category": "corrugated_sheets",
+      "url": "https://images.unsplash.com/photo-1602064828974-fcac67d33f4e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwxfHxzdGVlbCUyMHJvb2YlMjBjb25zdHJ1Y3Rpb24lMjB3YXJlaG91c2UlMjBtYXRlcmlhbHxlbnwwfHx8fDE3OTA3NTA3OTl8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Corrugated roofing sheet material background texture"
+    },
+    {
+      "category": "industrial_warehouse",
+      "url": "https://images.unsplash.com/photo-1694885169342-909981fb408a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwzfHxzdGVlbCUyMHJvb2YlMjBjb25zdHJ1Y3Rpb24lMjB3YXJlaG91c2UlMjBtYXRlcmlhbHxlbnwwfHx8fDE3OTA3NTA3OTl8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Multi-warehouse Mojopahit and Wahidin interior view"
+    }
+  ],
+  "instructions_to_main_agent": [
+    "Ensure all interactive elements have data-testid attributes formatted in kebab-case.",
+    "Role-based UI security: Hide HPP/Margin data and Supplier purchase cost from Kasir account; display PO status without price for Kasir.",
+    "Implement the Custom Indent Sheet Builder calculator with variables: Panjanga (Meter), Lengkung vs Lurus, Breakdown Upah Lengkung per meter, and total subtotal calculation.",
+    "Support dual warehouses (Mojopahit & Wahidin) with stock mutation transfer history.",
+    "Implement thermal receipt preview modal (80mm) and printable Surat Jalan A5/A4.",
+    "Ensure dot badge status in Sales History accurately reflects order state: Yellow (Proses Indent), Blue (Ready/Belum Dikirim), Orange (Antar Sebagian), Green (Close).",
+    "Use Sonner for toast notifications and Lucide React / Phosphor icons for modern industrial iconography."
+  ]
+}
