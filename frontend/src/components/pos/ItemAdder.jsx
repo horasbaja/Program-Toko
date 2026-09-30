@@ -87,9 +87,12 @@ function ReadyPicker({ onAdd }) {
     <div className="grid gap-3">
       <div className="relative"><Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
         <Input data-testid="pos-product-search" className="pl-9 h-11" placeholder="Cari barang ready stock..." value={q} onChange={(e) => setQ(e.target.value)} /></div>
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        <button className={`pill h-9 whitespace-nowrap ${!cat ? "pill-on" : ""}`} onClick={() => setCat("")} data-testid="pos-cat-all">Semua</button>
-        {categories.map((c) => <button key={c.id} data-testid={`pos-cat-${c.id}`} className={`pill h-9 whitespace-nowrap ${cat === c.id ? "pill-on" : ""}`} onClick={() => setCat(c.id)}>{c.name}</button>)}
+      <div className="cat-scroll -mx-1 flex flex-nowrap gap-2 overflow-x-auto px-1 pb-2" data-testid="pos-category-scroll">
+        <button className={`pill h-10 shrink-0 whitespace-nowrap px-4 ${!cat ? "pill-on" : "bg-background"}`} onClick={() => setCat("")} data-testid="pos-cat-all">Semua</button>
+        {categories.map((c) => (
+          <button key={c.id} data-testid={`pos-cat-${c.id}`} onClick={() => setCat(c.id)}
+            className={`pill h-10 shrink-0 whitespace-nowrap px-4 ${cat === c.id ? "pill-on" : "bg-background"}`}>{c.name}</button>
+        ))}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2">
         {list.map((p, i) => {
