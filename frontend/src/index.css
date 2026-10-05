@@ -85,6 +85,13 @@
 .doc-thermal80 { width: 76mm; padding: 6px 3px; }
 .doc-a4, .doc-f4 { width: 186mm; font-size: 13px; padding: 16px; }
 .doc-a4 .doc-title, .doc-f4 .doc-title { font-size: 30px; }
+.doc-items { margin: 6px 0; font-size: 12px; }
+.doc-items th, .doc-items td { border: 1px solid #000; padding: 4px 6px; vertical-align: top; }
+.doc-items th { background: #e5e7eb; font-weight: 700; white-space: nowrap; }
+.doc-items td.r, .doc-items th.r { text-align: right; white-space: nowrap; }
+.doc-items td.c { text-align: center; }
+.doc-sub { font-size: 10.5px; color: #333; margin-top: 2px; }
+.doc-bend-row td { font-style: italic; background: #f7f7f7; font-size: 11px; }
 .doc-sj { width: 196mm; font-size: 11px; font-family: "IBM Plex Sans", sans-serif; }
 .doc-title { font-family: "Barlow Condensed", sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; }
 .doc-hr { border-top: 1px dashed #000; margin: 6px 0; }

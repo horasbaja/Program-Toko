@@ -7,7 +7,60 @@ const Row = ({ l, r, b }) => (
   </div>
 );
 
+function ItemsTable({ items }) {
+  return (
+    <table className="doc-table doc-items" data-testid="nota-items-table">
+      <thead>
+        <tr><th>No</th><th>Nama Barang</th><th className="r">Qty</th><th>Satuan</th><th className="r">Harga Satuan</th><th className="r">Disc</th><th className="r">Total</th></tr>
+      </thead>
+      <tbody>
+        {items.map((it, i) => {
+          const unitPrice = it.is_length ? Number(it.price) * Number(it.length) : Number(it.price);
+          return [
+            <tr key={it.line_id || i}>
+              <td className="c">{i + 1}</td>
+              <td>{it.name}{it.is_length && <div className="doc-sub">{num(it.length)} m/{it.unit} · Total {num(it.total_meter)} m · @{rp(it.price)}/m · {bendLabel(it.bend)}</div>}</td>
+              <td className="r">{num(it.qty)}</td>
+              <td>{it.unit}</td>
+              <td className="r">{rp(unitPrice)}</td>
+              <td className="r">{Number(it.discount) > 0 ? rp(it.discount) : ""}</td>
+              <td className="r">{rp(it.subtotal)}</td>
+            </tr>,
+            it.bend_subtotal > 0 && (
+              <tr key={`${it.line_id || i}-bend`} className="doc-bend-row">
+                <td />
+                <td>Rincian Upah Lengkung: {num(it.qty)} {it.unit} x {rp(it.bend_fee)}</td>
+                <td className="r">{num(it.qty)}</td>
+                <td>{it.unit}</td>
+                <td className="r">{rp(it.bend_fee)}</td>
+                <td />
+                <td className="r">{rp(it.bend_subtotal)}</td>
+              </tr>
+            ),
+          ];
+        })}
+      </tbody>
+    </table>
+  );
+}
+
+function ItemsList({ items }) {
+  return items.map((it, i) => (
+    <div key={it.line_id || i} className="doc-item">
+      <div className="font-bold">{i + 1}. {it.name}</div>
+      <Row l={`${lineQty(it)} @${rp(it.price)}${it.is_length ? "/m" : ""}`} r={rp(it.subtotal)} />
+      {it.is_length && <div className="pl-2">Status: {bendLabel(it.bend)}</div>}
+      {it.bend_subtotal > 0 && (
+        <div className="doc-bend">
+          [ Rincian Upah Lengkung: {num(it.qty)} {it.unit} x {rp(it.bend_fee)} = {rp(it.bend_subtotal)} ]
+        </div>
+      )}
+    </div>
+  ));
+}
+
 export function Nota({ sale, settings = {}, variant = "thermal80" }) {
+  const isPaper = variant === "a4" || variant === "f4";
   const s = settings || {};
   return (
     <div className={`doc doc-${variant}`} data-testid="nota-doc" data-variant={variant}>
@@ -28,18 +81,7 @@ export function Nota({ sale, settings = {}, variant = "thermal80" }) {
       {(sale.delivery_address || sale.customer?.address) && <div>Alamat: {sale.delivery_address || sale.customer?.address}</div>}
       <Row l="Rencana Tgl Pengantaran" r={fdate(sale.delivery_date)} />
       <div className="doc-hr" />
-      {sale.items.map((it, i) => (
-        <div key={it.line_id || i} className="doc-item">
-          <div className="font-bold">{i + 1}. {it.name}</div>
-          <Row l={`${lineQty(it)} @${rp(it.price)}${it.is_length ? "/m" : ""}`} r={rp(it.subtotal)} />
-          {it.is_length && <div className="pl-2">Status: {bendLabel(it.bend)}</div>}
-          {it.bend_subtotal > 0 && (
-            <div className="doc-bend">
-              [ Rincian Upah Lengkung: {num(it.qty)} {it.unit} x {rp(it.bend_fee)} = {rp(it.bend_subtotal)} ]
-            </div>
-          )}
-        </div>
-      ))}
+      {isPaper ? <ItemsTable items={sale.items} /> : <ItemsList items={sale.items} />}
       <div className="doc-hr" />
       <Row l="Subtotal Material" r={rp(sale.total_material)} />
       <Row l="Total Upah Lengkung" r={rp(sale.total_bend)} />
