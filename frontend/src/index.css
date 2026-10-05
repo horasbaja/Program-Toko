@@ -80,8 +80,11 @@
 /* ---------- Print documents ---------- */
 .paper { background: #fff; color: #000; }
 .doc { background: #fff; color: #000; font-family: "JetBrains Mono", monospace; font-size: 11px; line-height: 1.45; padding: 10px; }
-.doc-thermal { width: 76mm; }
-.doc-standard { width: 140mm; font-size: 12px; }
+.doc-thermal58 { width: 54mm; font-size: 9.5px; padding: 4px 2px; }
+.doc-thermal58 .doc-title { font-size: 18px; }
+.doc-thermal80 { width: 76mm; padding: 6px 3px; }
+.doc-a4, .doc-f4 { width: 186mm; font-size: 13px; padding: 16px; }
+.doc-a4 .doc-title, .doc-f4 .doc-title { font-size: 30px; }
 .doc-sj { width: 196mm; font-size: 11px; font-family: "IBM Plex Sans", sans-serif; }
 .doc-title { font-family: "Barlow Condensed", sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; }
 .doc-hr { border-top: 1px dashed #000; margin: 6px 0; }

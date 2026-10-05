@@ -7,10 +7,10 @@ const Row = ({ l, r, b }) => (
   </div>
 );
 
-export function Nota({ sale, settings = {}, variant = "thermal" }) {
+export function Nota({ sale, settings = {}, variant = "thermal80" }) {
   const s = settings || {};
   return (
-    <div className={`doc ${variant === "thermal" ? "doc-thermal" : "doc-standard"}`} data-testid="nota-doc">
+    <div className={`doc doc-${variant}`} data-testid="nota-doc" data-variant={variant}>
       <div className="text-center">
         <div className="doc-title">{s.name || "HORAS BAJA"}</div>
         {s.tagline && <div>{s.tagline}</div>}

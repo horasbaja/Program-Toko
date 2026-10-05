@@ -18,6 +18,8 @@ All-in-One Management & POS System untuk Toko Bahan Bangunan Spesialis Seng, Roo
 - Semua 6 modul, RBAC (field HPP/uang dihapus di API untuk kasir), PWA + antrian offline + sinkronisasi otomatis, nota thermal/standard, surat jalan multi-rit, backup
 - Tes E2E pertama: backend 29/29 lulus, smoke test frontend lulus
 - Perbaikan: tab kategori POS bisa di-scroll horizontal (shrink-0, scrollbar tipis, snap)
+- Cetak nota: dialog pilihan printer sebelum mencetak — Thermal 58mm / 80mm (tanpa margin) atau Printer Biasa SmartTank A4 / F4 (faktur lengkap). Setelah dipilih, pratinjau terbuka dan dialog print browser otomatis muncul; tombol "Ganti Printer" ada di pratinjau
+- Data uji TEST_ dari testing agent dihapus (stok dikembalikan)
 
 ## Backlog
 - P1: Hapus password_hash dari backup JSON; cetak ulang nota offline setelah sync memakai nomor resmi
