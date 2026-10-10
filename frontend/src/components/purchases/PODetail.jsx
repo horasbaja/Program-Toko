@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Ban, Pencil } from "lucide-react";
+import { Ban, Pencil, Printer } from "lucide-react";
 import { api, errMsg } from "@/lib/api";
 import { rp, num, fdate, bendLabel, whName, RECEIVE_STATUSES } from "@/lib/format";
 import { useAuth } from "@/context/AuthContext";
@@ -8,6 +8,7 @@ import { useData } from "@/context/DataContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, Sel } from "@/components/common";
+import { useDocs } from "@/components/docs/useDocs";
 
 function ReceivePanel({ po, onChanged }) {
   const { warehouses, refresh } = useData();
@@ -49,6 +50,7 @@ function ReceivePanel({ po, onChanged }) {
 export function PODetail({ po, onChanged, onEdit }) {
   const { isAdmin } = useAuth();
   const { warehouses } = useData();
+  const { printPO } = useDocs();
   const voidPO = async () => {
     if (!window.confirm(`Void / hapus PO ${po.po_no}? Stok yang sudah masuk akan dikoreksi.`)) return;
     try { await api.post(`/purchases/${po.id}/void`); toast.success("PO di-void"); onChanged(null); } catch (e) { toast.error(errMsg(e)); }
@@ -66,6 +68,7 @@ export function PODetail({ po, onChanged, onEdit }) {
           <div className="text-right">
             <span className="tag tag-ready" data-testid="po-detail-status">{po.receive_status}</span>
             <div className="mt-1 text-xs text-muted-foreground">Gudang: {whName(warehouses, po.warehouse)}</div>
+            <Button size="sm" variant="secondary" className="mt-2 gap-2" data-testid="po-detail-print-button" onClick={() => printPO(po)}><Printer className="h-4 w-4" /> Cetak PO</Button>
           </div>
         </div>
         <div className="mt-3 overflow-x-auto">

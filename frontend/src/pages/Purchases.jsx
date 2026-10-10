@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Search } from "lucide-react";
+import { Plus, Printer, Search } from "lucide-react";
 import { api, errMsg } from "@/lib/api";
 import { rp, fdate, RECEIVE_STATUSES } from "@/lib/format";
 import { useAuth } from "@/context/AuthContext";
@@ -10,12 +10,14 @@ import { Button } from "@/components/ui/button";
 import { PageHeader, Sel, Empty } from "@/components/common";
 import { PODetail } from "@/components/purchases/PODetail";
 import { PODialog } from "@/components/purchases/PODialog";
+import { useDocs } from "@/components/docs/useDocs";
 
 const STATUS_COLOR = { Draft: "text-slate-400", "Dalam Proses": "text-sky-300", "Barang Diterima": "text-emerald-400", "Barang Belum Lengkap": "text-orange-300", "Barang Direject Semua": "text-red-400" };
 
 export default function Purchases() {
   const { isAdmin } = useAuth();
   const { suppliers } = useData();
+  const { printPO } = useDocs();
   const [fl, setFl] = useState({ q: "", supplier_id: "", status: "", type: "", date_from: "", date_to: "" });
   const [data, setData] = useState({ items: [], summary: {} });
   const [sel, setSel] = useState(null);
@@ -45,15 +47,17 @@ export default function Purchases() {
         <div className="panel overflow-hidden">
           <div className="max-h-[70vh] overflow-y-auto" data-testid="po-list">
             {data.items.map((p, i) => (
-              <button key={p.id} data-testid={`po-row-${i}`} onClick={() => setSel(p)}
-                className={`block w-full border-b border-border p-3 text-left transition-colors hover:bg-secondary/50 ${sel?.id === p.id ? "bg-primary/10 border-l-2 border-l-primary" : ""}`}>
-                <div className="flex justify-between"><span className="font-mono font-semibold text-orange-300">{p.po_no}</span><span className={`text-xs ${STATUS_COLOR[p.receive_status]}`}>{p.receive_status}</span></div>
+              <div key={p.id} role="button" tabIndex={0} data-testid={`po-row-${i}`} onClick={() => setSel(p)}
+                className={`block w-full cursor-pointer border-b border-border p-3 text-left transition-colors hover:bg-secondary/50 ${sel?.id === p.id ? "bg-primary/10 border-l-2 border-l-primary" : ""}`}>
+                <div className="flex items-center justify-between gap-2"><span className="font-mono font-semibold text-orange-300">{p.po_no}</span>
+                  <span className="flex items-center gap-2"><span className={`text-xs ${STATUS_COLOR[p.receive_status]}`}>{p.receive_status}</span>
+                    <Button size="icon" variant="ghost" className="h-7 w-7" title="Cetak PO" data-testid={`po-print-${i}`} onClick={(e) => { e.stopPropagation(); printPO(p); }}><Printer className="h-4 w-4" /></Button></span></div>
                 <div className="text-sm">{p.supplier_name}</div>
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>{fdate(p.date)} · {p.type === "indent" ? `Indent · ${p.customer_name}` : "Manual"}</span>
                   {isAdmin && <span className="font-mono">{rp(p.total)}</span>}
                 </div>
-              </button>
+              </div>
             ))}
             {!data.items.length && <Empty text="Belum ada PO" />}
           </div>

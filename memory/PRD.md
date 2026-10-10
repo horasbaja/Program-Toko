@@ -20,6 +20,7 @@ All-in-One Management & POS System untuk Toko Bahan Bangunan Spesialis Seng, Roo
 - Perbaikan: tab kategori POS bisa di-scroll horizontal (shrink-0, scrollbar tipis, snap)
 - Cetak nota: dialog pilihan printer sebelum mencetak — Thermal 58mm / 80mm (tanpa margin) atau Printer Biasa SmartTank A4 / F4 (faktur lengkap). Setelah dipilih, pratinjau terbuka dan dialog print browser otomatis muncul; tombol "Ganti Printer" ada di pratinjau
 - Data uji TEST_ dari testing agent dihapus (stok dikembalikan)
+- Cetak PO Pembelian (A4/A5): tombol cetak di tiap baris PO & detail; layout resmi (header toko, No PO, tanggal, supplier, gudang), tabel No/Deskripsi/Qty Fisik/Total Meter/HPP/Subtotal (HPP & Rp disembunyikan untuk kasir), footer total qty per satuan, total meter, total Rp, catatan, 3 kolom tanda tangan
 - Indent Builder: cascading dropdown Pabrik → Jenis Material → Merk/Tipe (hanya produk berpanjang milik supplier terpilih); ganti pabrik mereset jenis/merk/tebal/warna; fallback pesan "Tidak ada material kustom untuk pabrik ini" + input merk manual
 - POS: urutkan tabel produk dengan klik header (Nama, Stok, Harga; naik/turun)
 - Toggle Lengkung dinamis: field produk baru `is_lengkung` (bool, default false) & `upah_lengkung` (number, default 0), produk lama dimigrasi dari bend_fee; toggle hanya muncul untuk kategori Seng/Spandek/Deck/Atap/Alderon; Lurus = upah Rp 0 & field disembunyikan; berlaku di form produk, POS ready, indent builder, keranjang

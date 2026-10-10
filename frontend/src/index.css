@@ -92,6 +92,15 @@
 .doc-items td.c { text-align: center; }
 .doc-sub { font-size: 10.5px; color: #333; margin-top: 2px; }
 .doc-bend-row td { font-style: italic; background: #f7f7f7; font-size: 11px; }
+.doc-po { font-family: "IBM Plex Sans", sans-serif; }
+.doc-po-a4 { width: 190mm; font-size: 12px; padding: 14px; }
+.doc-po-a5 { width: 136mm; font-size: 9.5px; padding: 8px; }
+.doc-po-a5 .doc-title { font-size: 18px; }
+.doc-po-a5 .doc-items { font-size: 9.5px; }
+.doc-po-a5 .doc-items th, .doc-po-a5 .doc-items td { padding: 2px 4px; }
+.doc-po-a5 .po-doc-sign .mt-12 { margin-top: 1.75rem; }
+.po-doc-heading { font-family: "Barlow Condensed", sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.06em; }
+.po-doc-table tfoot td { border-top: 2px solid #000; background: #f1f5f9; }
 .doc-sj { width: 196mm; font-size: 11px; font-family: "IBM Plex Sans", sans-serif; }
 .doc-title { font-family: "Barlow Condensed", sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.08em; }
 .doc-hr { border-top: 1px dashed #000; margin: 6px 0; }
@@ -109,4 +118,10 @@
     body > *:not(#print-root) { display: none !important; }
     #print-root { display: block !important; }
     #print-root .doc { padding: 0; }
+    #print-root .doc-table { page-break-inside: auto; }
+    #print-root .doc-table tr, #print-root .po-doc-sign { page-break-inside: avoid; break-inside: avoid; }
+    #print-root .doc-table thead { display: table-header-group; }
+    #print-root .doc-po-a4 { width: 100%; }
+    #print-root .doc-po-a5 { width: 100%; }
+    #print-root * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
