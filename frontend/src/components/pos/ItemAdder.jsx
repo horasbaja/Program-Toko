@@ -190,25 +190,35 @@ function ReadyPicker({ onAdd }) {
   );
 }
 
+const INDENT_RESET = { category: "", product_id: "", brand: "", thickness: "", color: "", price: "", bend_fee: "", bend: "lengkung" };
+
 function IndentBuilder({ onAdd }) {
   const { suppliers, products } = useData();
-  const templates = products.filter((p) => p.is_length);
-  const [f, setF] = useState({ supplier_id: suppliers[0]?.id || "", product_id: "", brand: "", thickness: "", color: "", length: "", qty: "", bend: "lengkung", price: "", bend_fee: "" });
+  const [f, setF] = useState({ supplier_id: suppliers[0]?.id || "", ...INDENT_RESET, length: "", qty: "" });
   const set = (k, v) => setF((s) => ({ ...s, [k]: v }));
+  const supId = f.supplier_id || suppliers[0]?.id;
+  const supProducts = useMemo(() => products.filter((p) => p.is_length && p.supplier_id === supId), [products, supId]);
+  const cats = [...new Set(supProducts.map((p) => p.category_name).filter(Boolean))];
+  const models = supProducts.filter((p) => !f.category || p.category_name === f.category);
+  const noMaterial = !supProducts.length;
+  const pickSupplier = (v) => setF((s) => ({ ...s, supplier_id: v, ...INDENT_RESET }));
+  const pickCategory = (v) => setF((s) => ({ ...s, ...INDENT_RESET, category: v }));
   const pickTpl = (id) => {
     const p = products.find((x) => x.id === id);
+    if (!p) return setF((s) => ({ ...s, ...INDENT_RESET, category: s.category }));
     const pb = productBend(p);
-    const canBend = !p || isBendable(p.category_name, true);
-    setF((s) => ({ ...s, product_id: id, brand: p?.brand || s.brand, thickness: p?.thickness || s.thickness, price: p?.price ?? s.price,
-      bend_fee: pb.upah_lengkung, bend: canBend && (pb.is_lengkung || !p) ? "lengkung" : "lurus" }));
+    const canBend = isBendable(p.category_name, true);
+    return setF((s) => ({ ...s, product_id: id, category: p.category_name || s.category, brand: p.brand || "", thickness: p.thickness || "",
+      color: p.color || "", price: p.price ?? "", bend_fee: pb.upah_lengkung, bend: canBend && pb.is_lengkung ? "lengkung" : "lurus" }));
   };
   const tpl = products.find((x) => x.id === f.product_id);
   const bendable = !tpl || isBendable(tpl.category_name, true);
   const bend = bendable ? f.bend : "lurus";
-  const sup = suppliers.find((s) => s.id === (f.supplier_id || suppliers[0]?.id));
-  const name = `${tpl?.category_name || "Seng"} ${f.brand || sup?.prefix || ""} ${f.thickness} ${f.color}`.replace(/\s+/g, " ").trim();
+  const sup = suppliers.find((s) => s.id === supId);
+  const catName = tpl?.category_name || f.category || "Seng Deck (Spandek)";
+  const name = `${catName} ${f.brand || sup?.prefix || ""} ${f.thickness} ${f.color}`.replace(/\s+/g, " ").trim();
   const line = calcLine({ mode: "indent", ...f, bend, bendable, bend_fee: bend === "lengkung" ? f.bend_fee : 0, supplier_id: sup?.id, name,
-    category_name: tpl?.category_name || "Seng Deck (Spandek)", is_length: true, unit: tpl?.unit || "Lembar", ratio: 1 });
+    category_name: catName, is_length: true, unit: tpl?.unit || "Lembar", ratio: 1 });
   const add = () => {
     if (!sup || !Number(f.length) || !Number(f.qty) || !Number(f.price)) return toast.error("Lengkapi supplier, panjang, qty & harga");
     onAdd({ ...line, _key: uid() });
@@ -222,9 +232,16 @@ function IndentBuilder({ onAdd }) {
         <span className="tag tag-indent ml-auto">[INDENT - PO PABRIK]</span>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Supplier / Pabrik"><Sel testid="indent-supplier-select" value={f.supplier_id} onChange={(v) => set("supplier_id", v)} options={suppliers.map((s) => ({ value: s.id, label: `${s.name} (${s.prefix})` }))} /></Field>
-        <Field label="Jenis Material"><Sel testid="indent-template-select" value={f.product_id} onChange={pickTpl} placeholder="Pilih jenis..." options={templates.map((p) => ({ value: p.id, label: p.name }))} /></Field>
-        <Field label="Merk"><Input data-testid="indent-brand-input" value={f.brand} onChange={(e) => set("brand", e.target.value)} /></Field>
+        <Field label="Nama Pabrik / Supplier"><Sel testid="indent-supplier-select" value={supId} onChange={pickSupplier} options={suppliers.map((s) => ({ value: s.id, label: `${s.name} (${s.prefix})` }))} /></Field>
+        <Field label="Jenis Material / Kategori"><Sel testid="indent-category-select" value={f.category} onChange={pickCategory} placeholder={noMaterial ? "-" : "Semua jenis..."} options={cats} className={noMaterial ? "opacity-50 pointer-events-none" : ""} /></Field>
+        {noMaterial ? (
+          <div className="col-span-2 rounded-md border border-dashed border-yellow-500/50 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-300" data-testid="indent-no-material">
+            Tidak ada material kustom untuk pabrik ini
+          </div>
+        ) : (
+          <Field label="Merk / Tipe" className="col-span-2"><Sel testid="indent-template-select" value={f.product_id} onChange={pickTpl} placeholder="Pilih merk/tipe..." options={models.map((p) => ({ value: p.id, label: `${p.brand ? p.brand + " · " : ""}${p.name}` }))} /></Field>
+        )}
+        {noMaterial && <Field label="Merk (manual)"><Input data-testid="indent-brand-input" value={f.brand} onChange={(e) => set("brand", e.target.value)} /></Field>}
         <Field label="Tebal"><Input data-testid="indent-thickness-input" value={f.thickness} onChange={(e) => set("thickness", e.target.value)} placeholder="0.30" /></Field>
         <Field label="Warna"><Input data-testid="indent-color-input" value={f.color} onChange={(e) => set("color", e.target.value)} placeholder="Biru" /></Field>
         <Field label="Panjang Kustom (m)"><Input data-testid="indent-length-input" type="number" step="0.01" value={f.length} onChange={(e) => set("length", e.target.value)} className="font-mono" /></Field>
