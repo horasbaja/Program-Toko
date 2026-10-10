@@ -15,6 +15,13 @@ export const RECEIVE_STATUSES = ["Dalam Proses", "Barang Diterima", "Barang Belu
 export const PAY_METHODS = ["Tunai", "Transfer", "Piutang", "DP"];
 export const CUSTOMER_TYPES = ["Kontraktor", "Tukang", "Umum"];
 
+const BEND_RX = /seng|spandek|deck|atap|alderon|lengkung|kustom/i;
+export const isBendable = (catName, isLength) => !!isLength && BEND_RX.test(catName || "");
+export const productBend = (p = {}) => ({
+  is_lengkung: p.is_lengkung ?? Number(p.bend_fee) > 0,
+  upah_lengkung: Number(p.upah_lengkung ?? p.bend_fee) || 0,
+});
+
 export const whName = (whs, code) => whs?.find((w) => w.code === code)?.name || code || "-";
 export const bendLabel = (b) => (b === "lengkung" ? "Lengkung Standar" : "Lurus");
 export const lineQty = (it) =>

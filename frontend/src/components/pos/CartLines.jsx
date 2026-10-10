@@ -1,6 +1,7 @@
 import { Trash2 } from "lucide-react";
 import { calcLine } from "@/lib/calc";
-import { rp, num } from "@/lib/format";
+import { rp, num, isBendable, productBend } from "@/lib/format";
+import { useData } from "@/context/DataContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ModeTag, Empty } from "@/components/common";
@@ -11,6 +12,12 @@ const Mini = ({ label, children }) => (
 );
 
 function CartLine({ l, i, upd, del }) {
+  const { products } = useData();
+  const bendable = l.bendable ?? isBendable(l.category_name, l.is_length);
+  const setBend = (v) => upd(i, {
+    bend: v,
+    bend_fee: v === "lurus" ? 0 : Number(l.bend_fee) || productBend(products.find((p) => p.id === l.product_id)).upah_lengkung,
+  });
   return (
     <div className="border-b border-border py-3" data-testid={`cart-line-${i}`}>
       <div className="flex items-start gap-2">
@@ -27,7 +34,14 @@ function CartLine({ l, i, upd, del }) {
         )}
         <Mini label={l.is_length ? "Harga Nego/m" : `Harga/${l.unit}`}><Input data-testid={`cart-line-price-${i}`} type="number" value={l.price} onChange={(e) => upd(i, { price: e.target.value })} className="h-10 font-mono" /></Mini>
       </div>
-      {l.is_length && <div className="mt-2"><BendToggle value={l.bend} onChange={(v) => upd(i, { bend: v })} testid={`cart-line-bend-${i}`} /></div>}
+      {bendable && (
+        <div className="mt-2 grid grid-cols-[1fr_auto] items-end gap-2">
+          <BendToggle value={l.bend} onChange={setBend} testid={`cart-line-bend-${i}`} />
+          {l.bend === "lengkung" && (
+            <Mini label="Upah/Lbr"><Input data-testid={`cart-line-bendfee-${i}`} type="number" value={l.bend_fee} onChange={(e) => upd(i, { bend_fee: e.target.value })} className="h-10 w-24 font-mono" /></Mini>
+          )}
+        </div>
+      )}
       <div className="mt-2 flex justify-between font-mono text-xs text-muted-foreground">
         <span>{l.is_length ? `${num(l.qty)} ${l.unit} × ${num(l.length)} m = ${num(l.total_meter)} m` : `${num(l.qty)} ${l.unit}`}</span>
         <span className="text-foreground">{rp(l.subtotal)}</span>

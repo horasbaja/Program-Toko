@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { api, errMsg } from "@/lib/api";
-import { rp, num } from "@/lib/format";
+import { rp, num, isBendable, productBend } from "@/lib/format";
+import { BendToggle } from "@/components/pos/ItemAdder";
 import { useData } from "@/context/DataContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,14 +19,19 @@ function ProductDialog({ product, onClose, onSaved }) {
   const { categories, suppliers, warehouses } = useData();
   const [f, setF] = useState(null);
   useEffect(() => {
-    if (product) setF({ stock: { G1: 0, G2: 0 }, alt_units: [], unit: "Lembar", ...product, alt: product.alt_units?.[0] || { unit: "", ratio: "", price: "" } });
+    if (product) setF({ stock: { G1: 0, G2: 0 }, alt_units: [], unit: "Lembar", ...product, ...productBend(product), alt: product.alt_units?.[0] || { unit: "", ratio: "", price: "" } });
   }, [product]);
   if (!product || !f) return null;
   const set = (k, v) => setF({ ...f, [k]: v });
+  const bendable = isBendable(categories.find((c) => c.id === f.category_id)?.name, f.is_length);
+  const setBend = (v) => setF({ ...f, is_lengkung: v === "lengkung", upah_lengkung: v === "lengkung" ? f.upah_lengkung : 0 });
   const pickCat = (id) => { const c = categories.find((x) => x.id === id); setF({ ...f, category_id: id, is_length: !!c?.is_length, unit: c?.unit || f.unit }); };
   const save = async () => {
     try {
       const { alt, ...body } = f;
+      body.is_lengkung = bendable && !!f.is_lengkung;
+      body.upah_lengkung = body.is_lengkung ? Number(f.upah_lengkung) || 0 : 0;
+      body.bend_fee = body.upah_lengkung;
       body.alt_units = alt.unit ? [{ unit: alt.unit, ratio: Number(alt.ratio) || 1, price: Number(alt.price) || 0 }] : [];
       if (f.id) await api.put(`/products/${f.id}`, body); else await api.post("/products", body);
       toast.success("Produk tersimpan");
@@ -49,7 +55,10 @@ function ProductDialog({ product, onClose, onSaved }) {
           <Field label="Barang Berpanjang (harga/meter)"><div className="h-10 flex items-center"><Switch data-testid="product-is-length-switch" checked={!!f.is_length} onCheckedChange={(v) => set("is_length", v)} /></div></Field>
           {f.is_length && N("length", "Panjang Standar (m)")}
           {N("price", f.is_length ? "Harga Standar / Meter" : "Harga Jual / Satuan")}
-          {f.is_length && N("bend_fee", "Upah Lengkung / Lembar")}
+          {bendable && (
+            <Field label="Toggle Lengkung" className="col-span-2"><BendToggle value={f.is_lengkung ? "lengkung" : "lurus"} onChange={setBend} testid="product-lengkung-switch" /></Field>
+          )}
+          {bendable && f.is_lengkung && N("upah_lengkung", "Upah Lengkung Standar per Lembar")}
           {N("hpp", f.is_length ? "HPP Beli / Meter" : "HPP / Satuan")}
           {N("min_stock", "Stok Minimum")}
           {warehouses.map((w) => (
@@ -91,7 +100,7 @@ function ProductTable() {
                 <td>{p.name}<div className="text-xs text-muted-foreground">{p.is_length ? `${num(p.length)} m / ${p.unit}` : p.unit}{p.alt_units?.length ? ` · ${p.alt_units.map((a) => `${a.unit} isi ${a.ratio}`).join(", ")}` : ""}</div></td>
                 <td className="text-xs">{p.category_name}</td>
                 <td className="num">{rp(p.price)}{p.is_length ? "/m" : ""}</td>
-                <td className="num">{p.is_length ? rp(p.bend_fee) : "-"}</td>
+                <td className="num">{productBend(p).is_lengkung ? rp(productBend(p).upah_lengkung) : p.is_length ? <span className="text-muted-foreground">Lurus</span> : "-"}</td>
                 <td className="num text-muted-foreground">{rp(p.hpp)}</td>
                 <td className="num text-emerald-400">{p.price ? `${num(((p.price - p.hpp) / p.price) * 100, 1)}%` : "-"}</td>
                 <td className="num">{num(p.stock?.G1)}</td><td className="num">{num(p.stock?.G2)}</td>

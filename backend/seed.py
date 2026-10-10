@@ -80,6 +80,12 @@ def indent(p, sup, thick, color, length, qty, bend, price=None):
             "price": price or p["price"], "bend_fee": p.get("bend_fee", 0), "bend": bend, "ratio": 1}
 
 
+async def migrate_products():
+    async for p in db.products.find({"is_lengkung": {"$exists": False}}, {"_id": 0, "id": 1, "bend_fee": 1}):
+        fee = float(p.get("bend_fee") or 0)
+        await db.products.update_one({"id": p["id"]}, {"$set": {"is_lengkung": fee > 0, "upah_lengkung": fee}})
+
+
 async def seed_all():
     await seed_users()
     if await db.settings.find_one({"id": "store"}) is None:

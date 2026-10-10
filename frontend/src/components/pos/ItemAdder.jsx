@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { AlertTriangle, Plus, Search } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, ArrowUpDown, Plus, Search } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { calcLine } from "@/lib/calc";
-import { rp, num, uid } from "@/lib/format";
+import { rp, num, uid, isBendable, productBend } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -33,11 +33,15 @@ function ReadyConfig({ product: p, onClose, onAdd }) {
   const u = units.find((x) => x.unit === unit) || units[0];
   const [qty, setQty] = useState(1);
   const [price, setPrice] = useState(p.price);
-  const [bend, setBend] = useState("lurus");
+  const bendable = isBendable(p.category_name, p.is_length);
+  const pb = productBend(p);
+  const [bend, setBend] = useState(bendable && pb.is_lengkung ? "lengkung" : "lurus");
+  const [bendFee, setBendFee] = useState(pb.upah_lengkung);
   const need = Number(qty) * (u.ratio || 1);
   const avail = Number(p.stock?.[wh] || 0);
   const line = calcLine({ mode: "ready", product_id: p.id, name: p.name, category_name: p.category_name, is_length: p.is_length,
-    unit: u.unit, ratio: u.ratio || 1, qty, length: p.length, price, bend_fee: p.bend_fee, bend, warehouse: wh, supplier_id: p.supplier_id });
+    unit: u.unit, ratio: u.ratio || 1, qty, length: p.length, price, bendable, bend: bendable ? bend : "lurus",
+    bend_fee: bendable && bend === "lengkung" ? bendFee : 0, warehouse: wh, supplier_id: p.supplier_id });
   const add = () => {
     if (need > avail) toast.warning(`Qty melebihi stok ${wh} (tersedia ${num(avail)} ${p.unit})`);
     onAdd({ ...line, _key: uid() });
@@ -61,7 +65,14 @@ function ReadyConfig({ product: p, onClose, onAdd }) {
         <Field label={p.is_length ? "Harga Jual Nego / Meter" : `Harga Jual Nego / ${u.unit}`}><Input data-testid="ready-price-input" type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="h-12 text-lg font-mono" /></Field>
         {p.is_length && <Field label="Panjang / Lembar"><div className="h-12 flex items-center font-mono text-lg">{num(p.length)} m</div></Field>}
       </div>
-      {p.is_length && Number(p.bend_fee) > 0 && <BendToggle value={bend} onChange={setBend} testid="ready-bend-switch" />}
+      {bendable && (
+        <div className="grid gap-3 sm:grid-cols-2 sm:items-end">
+          <BendToggle value={bend} onChange={setBend} testid="ready-bend-switch" />
+          {bend === "lengkung" && (
+            <Field label="Upah Lengkung Standar per Lembar"><Input data-testid="ready-bendfee-input" type="number" value={bendFee} onChange={(e) => setBendFee(e.target.value)} className="font-mono" /></Field>
+          )}
+        </div>
+      )}
       {need > avail && (
         <div data-testid="ready-stock-warning" className="flex items-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 p-2 text-sm text-red-300">
           <AlertTriangle className="h-4 w-4" /> Qty melebihi stok {wh} (tersedia {num(avail)} {p.unit})
@@ -70,7 +81,7 @@ function ReadyConfig({ product: p, onClose, onAdd }) {
       <div className="rounded-md bg-secondary/50 p-3 font-mono text-sm space-y-1">
         {p.is_length && <div>Total Meter: {num(line.total_meter)} m</div>}
         <div>Subtotal Material: {rp(line.subtotal)}</div>
-        {line.bend_subtotal > 0 && <div className="text-orange-300">Upah Lengkung: {num(qty)} {u.unit} x {rp(p.bend_fee)} = {rp(line.bend_subtotal)}</div>}
+        {line.bend_subtotal > 0 && <div className="text-orange-300">Upah Lengkung: {num(qty)} {u.unit} x {rp(line.bend_fee)} = {rp(line.bend_subtotal)}</div>}
       </div>
       <Button data-testid="ready-add-to-cart" onClick={add} className="h-12 text-base gap-2"><Plus className="h-5 w-5" /> Tambah ke Keranjang</Button>
     </div>
@@ -106,15 +117,41 @@ function ProductRow({ p, i, onPick }) {
   );
 }
 
+const SORTERS = { name: (p) => (p.name || "").toLowerCase(), stock: totalStock, price: (p) => Number(p.price) || 0 };
+
+function SortTh({ k, label, sort, onSort, className = "" }) {
+  const Icon = sort.key !== k ? ArrowUpDown : sort.dir === 1 ? ArrowUp : ArrowDown;
+  return (
+    <th className={`!py-2 ${className}`}>
+      <button type="button" data-testid={`pos-sort-${k}`} onClick={() => onSort(k)}
+        className={`inline-flex items-center gap-1 uppercase tracking-wider transition-colors hover:text-foreground ${sort.key === k ? "text-orange-300" : ""}`}>
+        {label} <Icon className="h-3 w-3" />
+      </button>
+    </th>
+  );
+}
+
 function ProductTable({ list, onPick }) {
+  const [sort, setSort] = useState({ key: "name", dir: 1 });
+  const onSort = (key) => setSort((s) => ({ key, dir: s.key === key ? -s.dir : 1 }));
+  const rows = useMemo(() => [...list].sort((a, b) => {
+    const x = SORTERS[sort.key](a);
+    const y = SORTERS[sort.key](b);
+    return (x > y ? 1 : x < y ? -1 : 0) * sort.dir;
+  }), [list, sort]);
   return (
     <div className="panel overflow-hidden" data-testid="pos-product-table">
       <div className="max-h-[58vh] overflow-auto">
         <table className="dtable table-fixed sm:table-auto [&_td]:!px-2 [&_th]:!px-2 sm:[&_td]:!px-3 sm:[&_th]:!px-3">
           <thead>
-            <tr><th className="!py-2">Nama Produk & Spesifikasi</th><th className="!py-2 hidden sm:table-cell">Stok Gudang</th><th className="!py-2 text-right w-[92px] sm:w-auto">Harga Satuan</th><th className="!py-2 text-right w-[52px] sm:w-auto">Aksi</th></tr>
+            <tr>
+              <SortTh k="name" label="Nama Produk & Spesifikasi" sort={sort} onSort={onSort} />
+              <SortTh k="stock" label="Stok Gudang" sort={sort} onSort={onSort} className="hidden sm:table-cell" />
+              <SortTh k="price" label="Harga" sort={sort} onSort={onSort} className="text-right w-[92px] sm:w-auto" />
+              <th className="!py-2 text-right w-[52px] sm:w-auto">Aksi</th>
+            </tr>
           </thead>
-          <tbody>{list.map((p, i) => <ProductRow key={p.id} p={p} i={i} onPick={onPick} />)}</tbody>
+          <tbody>{rows.map((p, i) => <ProductRow key={p.id} p={p} i={i} onPick={onPick} />)}</tbody>
         </table>
         {!list.length && <div className="py-8 text-center text-sm text-muted-foreground">Produk tidak ditemukan</div>}
       </div>
@@ -160,12 +197,18 @@ function IndentBuilder({ onAdd }) {
   const set = (k, v) => setF((s) => ({ ...s, [k]: v }));
   const pickTpl = (id) => {
     const p = products.find((x) => x.id === id);
-    setF((s) => ({ ...s, product_id: id, brand: p?.brand || s.brand, thickness: p?.thickness || s.thickness, price: p?.price ?? s.price, bend_fee: p?.bend_fee ?? s.bend_fee }));
+    const pb = productBend(p);
+    const canBend = !p || isBendable(p.category_name, true);
+    setF((s) => ({ ...s, product_id: id, brand: p?.brand || s.brand, thickness: p?.thickness || s.thickness, price: p?.price ?? s.price,
+      bend_fee: pb.upah_lengkung, bend: canBend && (pb.is_lengkung || !p) ? "lengkung" : "lurus" }));
   };
   const tpl = products.find((x) => x.id === f.product_id);
+  const bendable = !tpl || isBendable(tpl.category_name, true);
+  const bend = bendable ? f.bend : "lurus";
   const sup = suppliers.find((s) => s.id === (f.supplier_id || suppliers[0]?.id));
   const name = `${tpl?.category_name || "Seng"} ${f.brand || sup?.prefix || ""} ${f.thickness} ${f.color}`.replace(/\s+/g, " ").trim();
-  const line = calcLine({ mode: "indent", ...f, supplier_id: sup?.id, name, category_name: tpl?.category_name || "Seng Deck (Spandek)", is_length: true, unit: tpl?.unit || "Lembar", ratio: 1 });
+  const line = calcLine({ mode: "indent", ...f, bend, bendable, bend_fee: bend === "lengkung" ? f.bend_fee : 0, supplier_id: sup?.id, name,
+    category_name: tpl?.category_name || "Seng Deck (Spandek)", is_length: true, unit: tpl?.unit || "Lembar", ratio: 1 });
   const add = () => {
     if (!sup || !Number(f.length) || !Number(f.qty) || !Number(f.price)) return toast.error("Lengkapi supplier, panjang, qty & harga");
     onAdd({ ...line, _key: uid() });
@@ -187,9 +230,15 @@ function IndentBuilder({ onAdd }) {
         <Field label="Panjang Kustom (m)"><Input data-testid="indent-length-input" type="number" step="0.01" value={f.length} onChange={(e) => set("length", e.target.value)} className="font-mono" /></Field>
         <Field label="Qty (Lembar)"><Input data-testid="indent-qty-input" type="number" value={f.qty} onChange={(e) => set("qty", e.target.value)} className="font-mono" /></Field>
         <Field label="Harga Jual / Meter"><Input data-testid="indent-price-input" type="number" value={f.price} onChange={(e) => set("price", e.target.value)} className="font-mono" /></Field>
-        <Field label="Upah Lengkung / Lembar"><Input data-testid="indent-bendfee-input" type="number" value={f.bend_fee} onChange={(e) => set("bend_fee", e.target.value)} className="font-mono" /></Field>
       </div>
-      <BendToggle value={f.bend} onChange={(v) => set("bend", v)} testid="indent-bend-switch" />
+      {bendable && (
+        <div className="grid gap-3 sm:grid-cols-2 sm:items-end">
+          <BendToggle value={bend} onChange={(v) => set("bend", v)} testid="indent-bend-switch" />
+          {bend === "lengkung" && (
+            <Field label="Upah Lengkung Standar per Lembar"><Input data-testid="indent-bendfee-input" type="number" value={f.bend_fee} onChange={(e) => set("bend_fee", e.target.value)} className="font-mono" /></Field>
+          )}
+        </div>
+      )}
       <div className="rounded-md bg-secondary/50 p-3 font-mono text-sm space-y-1">
         <div className="text-foreground">{name}</div>
         <div>Total Meter: {num(f.qty)} Lbr × {num(f.length)} m = {num(line.total_meter)} m</div>

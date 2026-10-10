@@ -13,7 +13,7 @@ from routes_master import router as master_router  # noqa: E402
 from routes_sales import router as sales_router  # noqa: E402
 from routes_purchases import router as purchases_router  # noqa: E402
 from routes_reports import router as reports_router  # noqa: E402
-from seed import seed_all  # noqa: E402
+from seed import seed_all, migrate_products  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 app = FastAPI(title="HORAS BAJA POS API")
@@ -45,6 +45,7 @@ async def startup():
     await db.sales.create_index("date")
     await db.sales.create_index("offline_id")
     await seed_all()
+    await migrate_products()
 
 
 @app.on_event("shutdown")

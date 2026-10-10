@@ -148,7 +148,8 @@ for _n, (_r, _w) in CRUD.items():
 
 # ---------- Products ----------
 PRODUCT_FIELDS = ("name", "category_id", "supplier_id", "brand", "thickness", "color", "unit", "is_length",
-                  "length", "price", "bend_fee", "hpp", "min_stock", "alt_units", "stock", "sku")
+                  "length", "price", "bend_fee", "hpp", "min_stock", "alt_units", "stock", "sku",
+                  "upah_lengkung", "is_lengkung")
 
 
 async def normalize_product(body: dict) -> dict:
@@ -162,6 +163,10 @@ async def normalize_product(body: dict) -> dict:
             doc[k] = f(doc[k])
     if "stock" in doc:
         doc["stock"] = {w: f(v) for w, v in (doc["stock"] or {}).items()}
+    if "is_lengkung" in doc or "upah_lengkung" in doc:
+        doc["is_lengkung"] = bool(doc.get("is_lengkung"))
+        doc["upah_lengkung"] = f(doc.get("upah_lengkung")) if doc["is_lengkung"] else 0.0
+        doc["bend_fee"] = doc["upah_lengkung"]
     return doc
 
 
@@ -175,6 +180,8 @@ async def list_products(user=Depends(get_user)):
 async def create_product(body: dict, _=Depends(require_admin)):
     doc = await normalize_product(body)
     doc.setdefault("stock", {"G1": 0, "G2": 0})
+    doc.setdefault("is_lengkung", False)
+    doc.setdefault("upah_lengkung", 0.0)
     doc.update({"id": uid(), "created_at": now_iso()})
     await db.products.insert_one(dict(doc))
     return doc
