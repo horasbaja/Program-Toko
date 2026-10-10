@@ -77,6 +77,54 @@ function ReadyConfig({ product: p, onClose, onAdd }) {
   );
 }
 
+const SHORT = { Lembar: "Lbr", Batang: "Btg", Bungkus: "Bks", Kotak: "Ktk", Meter: "m" };
+const short = (u) => SHORT[u] || u || "Pcs";
+
+function ProductRow({ p, i, onPick }) {
+  const low = totalStock(p) <= Number(p.min_stock || 0);
+  const stockText = `G1: ${num(p.stock?.G1)} ${short(p.unit)} | G2: ${num(p.stock?.G2)} ${short(p.unit)}`;
+  return (
+    <tr data-testid={`pos-product-${i}`} className="cursor-pointer" onClick={() => onPick(p)}>
+      <td className="!py-1.5 [overflow-wrap:anywhere]">
+        {p.category_name && <span className="tag tag-ready mr-1.5 !text-[9px]">{p.category_name}</span>}
+        <span className="text-[13px] font-medium">{p.name}</span>
+        <div className={`sm:hidden font-mono text-[11px] ${low ? "text-red-400" : "text-muted-foreground"}`}>{stockText}</div>
+      </td>
+      <td className={`hidden sm:table-cell !py-1.5 font-mono text-xs whitespace-nowrap ${low ? "text-red-400" : "text-slate-300"}`} data-testid={`pos-product-stock-${i}`}>
+        {stockText}
+      </td>
+      <td className="!py-1.5 num !whitespace-normal sm:!whitespace-nowrap text-xs text-orange-300">
+        {rp(p.price)}<span className="block sm:inline">/{p.is_length ? "m" : short(p.unit)}</span>
+        {p.is_length && <div className="hidden sm:block text-[10px] text-muted-foreground">≈ {rp(p.price * p.length)}/{short(p.unit)}</div>}
+      </td>
+      <td className="!py-1.5 text-right">
+        <Button size="sm" className="h-7 gap-1 px-2.5 text-xs" data-testid={`pos-product-add-${i}`} onClick={(e) => { e.stopPropagation(); onPick(p); }}>
+          <Plus className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Pilih</span>
+        </Button>
+      </td>
+    </tr>
+  );
+}
+
+function ProductTable({ list, onPick }) {
+  return (
+    <div className="panel overflow-hidden" data-testid="pos-product-table">
+      <div className="max-h-[58vh] overflow-auto">
+        <table className="dtable table-fixed sm:table-auto [&_td]:!px-2 [&_th]:!px-2 sm:[&_td]:!px-3 sm:[&_th]:!px-3">
+          <thead>
+            <tr><th className="!py-2">Nama Produk & Spesifikasi</th><th className="!py-2 hidden sm:table-cell">Stok Gudang</th><th className="!py-2 text-right w-[92px] sm:w-auto">Harga Satuan</th><th className="!py-2 text-right w-[52px] sm:w-auto">Aksi</th></tr>
+          </thead>
+          <tbody>{list.map((p, i) => <ProductRow key={p.id} p={p} i={i} onPick={onPick} />)}</tbody>
+        </table>
+        {!list.length && <div className="py-8 text-center text-sm text-muted-foreground">Produk tidak ditemukan</div>}
+      </div>
+      <div className="border-t border-border bg-secondary/50 px-3 py-1.5 font-mono text-[11px] text-muted-foreground" data-testid="pos-product-count">
+        {list.length} produk · klik baris atau "Pilih" untuk atur gudang & qty
+      </div>
+    </div>
+  );
+}
+
 function ReadyPicker({ onAdd }) {
   const { products, categories } = useData();
   const [q, setQ] = useState("");
@@ -94,20 +142,7 @@ function ReadyPicker({ onAdd }) {
             className={`pill h-10 shrink-0 whitespace-nowrap px-4 ${cat === c.id ? "pill-on" : "bg-background"}`}>{c.name}</button>
         ))}
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2">
-        {list.map((p, i) => {
-          const low = totalStock(p) <= Number(p.min_stock || 0);
-          return (
-            <button key={p.id} data-testid={`pos-product-${i}`} onClick={() => setSel(p)}
-              className="panel p-3 text-left hover:border-primary/70 active:scale-[0.98] transition-transform min-h-[110px] flex flex-col">
-              <span className="font-mono text-[10px] uppercase text-muted-foreground truncate">{p.category_name}</span>
-              <span className="text-sm font-semibold leading-snug line-clamp-2">{p.name}</span>
-              <span className="mt-auto font-mono text-sm text-orange-300">{rp(p.price)}{p.is_length ? "/m" : `/${p.unit}`}</span>
-              <span className={`font-mono text-[11px] ${low ? "text-red-400" : "text-muted-foreground"}`}>G1 {num(p.stock?.G1)} · G2 {num(p.stock?.G2)} {p.unit}</span>
-            </button>
-          );
-        })}
-      </div>
+      <ProductTable list={list} onPick={setSel} />
       <Dialog open={!!sel} onOpenChange={(o) => !o && setSel(null)}>
         <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto">
           <DialogHeader><DialogTitle className="font-heading text-xl uppercase">{sel?.name}</DialogTitle></DialogHeader>

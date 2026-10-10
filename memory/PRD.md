@@ -20,6 +20,7 @@ All-in-One Management & POS System untuk Toko Bahan Bangunan Spesialis Seng, Roo
 - Perbaikan: tab kategori POS bisa di-scroll horizontal (shrink-0, scrollbar tipis, snap)
 - Cetak nota: dialog pilihan printer sebelum mencetak — Thermal 58mm / 80mm (tanpa margin) atau Printer Biasa SmartTank A4 / F4 (faktur lengkap). Setelah dipilih, pratinjau terbuka dan dialog print browser otomatis muncul; tombol "Ganti Printer" ada di pratinjau
 - Data uji TEST_ dari testing agent dihapus (stok dikembalikan)
+- POS Ready Stock: daftar produk diubah dari card grid menjadi tabel ringkas (Nama+badge kategori, Stok G1|G2, Harga Satuan, tombol Pilih), container scroll max 58vh dengan sticky header; di mobile stok pindah di bawah nama
 - Nota A4/F4: daftar item kini tabel bergaris (No, Nama Barang, Qty, Satuan, Harga Satuan, Disc, Total) + baris rincian upah lengkung; format thermal tidak berubah
 
 ## Backlog
